@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Hormon Eşleştirme</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#EEF1EA;
+    --paper:#FBFAF5;
+    --ink:#1E2E27;
+    --ink-soft:#4B5D54;
+    --line:#D6D9CC;
+    --organ:#3E6FA8;
+    --organ-bg:#E4ECF5;
+    --gorev:#2F6F5E;
+    --gorev-bg:#E1EFEA;
+    --sorun:#B5541F;
+    --sorun-bg:#F5E7DC;
+    --good:#2F6F5E;
+    --bad:#B23A34;
+    --shadow: 0 1px 2px rgba(30,46,39,.06), 0 6px 16px rgba(30,46,39,.08);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#141a17;
+      --paper:#1c2420;
+      --ink:#EDF2EC;
+      --ink-soft:#AAB8AE;
+      --line:#33423a;
+      --organ:#7fa8d6;
+      --organ-bg:#20304a;
+      --gorev:#6fbfa4;
+      --gorev-bg:#173029;
+      --sorun:#e0925c;
+      --sorun-bg:#3a2618;
+      --good:#6fbfa4;
+      --bad:#e28a83;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#141a17;
+    --paper:#1c2420;
+    --ink:#EDF2EC;
+    --ink-soft:#AAB8AE;
+    --line:#33423a;
+    --organ:#7fa8d6;
+    --organ-bg:#20304a;
+    --gorev:#6fbfa4;
+    --gorev-bg:#173029;
+    --sorun:#e0925c;
+    --sorun-bg:#3a2618;
+    --good:#6fbfa4;
+    --bad:#e28a83;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+  }
+
+  @font-face{
+    font-family:'Fraunces';
+    src:local('Fraunces');
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Karla', 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-block: env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px);
+  }
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding: 20px 16px 48px;
+  }
+  h1,h2,h3{font-family:'Fraunces', Georgia, serif; text-wrap:balance; margin:0;}
+  .mono{font-family:'IBM Plex Mono', ui-monospace, Consolas, monospace; font-variant-numeric:tabular-nums;}
+
+  [hidden]{display:none !important;}
+
+  /* ---------- Start screen ---------- */
+  .cover{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius: 20px;
+    box-shadow:var(--shadow);
+    padding: 28px 24px 26px;
+    margin-top: 18px;
+  }
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    font-weight:700;
+  }
+  .cover h1{
+    font-size: clamp(1.7rem, 5vw, 2.5rem);
+    margin-top:6px;
+    line-height:1.05;
+  }
+  .cover .sub{
+    color:var(--ink-soft);
+    margin-top:10px;
+    max-width:60ch;
+    line-height:1.5;
+  }
+
+  .badge-row{
+    display:flex; gap:10px; flex-wrap:wrap;
+    margin-top:18px;
+  }
+  .badge{
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:.8rem;
+    font-weight:700;
+    border:1px solid transparent;
+  }
+  .badge.organ{ color:var(--organ); background:var(--organ-bg); }
+  .badge.gorev{ color:var(--gorev); background:var(--gorev-bg); }
+  .badge.sorun{ color:var(--sorun); background:var(--sorun-bg); }
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;}
+
+  .howto{
+    margin-top:22px;
+    border-top:1px dashed var(--line);
+    padding-top:18px;
+  }
+  .howto h2{font-size:1.05rem; margin-bottom:10px;}
+  .howto ol{
+    margin:0; padding-left:1.2em;
+    display:grid; gap:9px;
+    color:var(--ink);
+  }
+  .howto ol li{line-height:1.5;}
+  .howto b{color:var(--ink);}
+  .rules-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+    margin-top:14px;
+  }
+  .rule-tile{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 12px;
+  }
+  .rule-tile .k{font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:700;}
+  .rule-tile .v{font-size:.78rem; color:var(--ink-soft); margin-top:2px;}
+
+  form.identity{
+    margin-top:22px;
+    display:grid;
+    gap:12px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:.78rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;}
+  .field input{
+    font:inherit;
+    font-size:1rem;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .field input:focus{ outline:2px solid var(--gorev); outline-offset:1px; }
+
+  .cta-row{
+    margin-top:18px;
+    display:flex; gap:10px; flex-wrap:wrap;
+    align-items:center;
+  }
+  button{ font: inherit; cursor:pointer; }
+  .btn{
+    border:none;
+    border-radius:12px;
+    padding:13px 20px;
+    font-weight:700;
+    font-size:.95rem;
+  }
+  .btn:focus-visible{ outline:3px solid var(--organ); outline-offset:2px; }
+  .btn-primary{ background:var(--gorev); color:#fff; box-shadow:var(--shadow); }
+  .btn-primary:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .btn-ghost{
+    background:transparent; color:var(--ink); border:1.5px solid var(--line);
+  }
+  .hint-msg{ font-size:.8rem; color:var(--bad); min-height:1.2em; }
+
+  /* ---------- Game screen ---------- */
+  .topbar{
+    position:sticky; top:env(safe-area-inset-top,0px);
+    background:var(--bg);
+    padding:10px 0 12px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    z-index:5;
+    border-bottom:1px solid var(--line);
+  }
+  .timer-pill{
+    display:flex; align-items:center; gap:8px;
+    background:var(--paper); border:1px solid var(--line);
+    padding:8px 14px; border-radius:999px; box-shadow:var(--shadow);
+  }
+  .timer-pill .tlabel{font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-weight:700;}
+  .timer-pill .tval{font-size:1.15rem; font-weight:700;}
+  .timer-pill.low .tval{color:var(--bad);}
+  .stat{ text-align:center; }
+  .stat .n{font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:700;}
+  .stat .l{font-size:.66rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft);}
+  .stats-row{display:flex; gap:16px;}
+
+  .round-banner{
+    margin-top:16px;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .round-banner .step{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.75rem;
+    color:var(--ink-soft);
+  }
+  .round-banner h2{ font-size:1.3rem; }
+  .round-banner .tag{
+    padding:4px 10px; border-radius:999px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  }
+  .round-banner .tag.organ{color:var(--organ); background:var(--organ-bg);}
+  .round-banner .tag.gorev{color:var(--gorev); background:var(--gorev-bg);}
+  .round-banner .tag.sorun{color:var(--sorun); background:var(--sorun-bg);}
+  .round-desc{ color:var(--ink-soft); font-size:.85rem; margin-top:4px; }
+
+  .board{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    margin-top:16px;
+  }
+  .col-title{
+    font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-weight:700;
+    margin-bottom:2px;
+  }
+  .card{
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:12px 13px;
+    text-align:left;
+    color:var(--ink);
+    line-height:1.35;
+    font-size:.87rem;
+    min-height:56px;
+    display:flex; align-items:center;
+    width:100%;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease, opacity .3s ease;
+  }
+  .card.name{ font-weight:700; font-family:'Fraunces', serif; font-size:1rem; }
+  .card:hover:not(:disabled){ border-color: var(--gorev); }
+  .card:active:not(:disabled){ transform:scale(.98); }
+  .card.selected{ border-color: var(--gorev); background:var(--gorev-bg); box-shadow: var(--shadow); }
+  .card.matched{ opacity:.35; border-style:dashed; pointer-events:none; }
+  .card.wrong{ animation: shake .4s ease; border-color:var(--bad); background:var(--sorun-bg); }
+  .card:disabled{ cursor:default; }
+
+  @keyframes shake{
+    10%,90%{ transform: translateX(-1px); }
+    20%,80%{ transform: translateX(2px); }
+    30%,50%,70%{ transform: translateX(-4px); }
+    40%,60%{ transform: translateX(4px); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card{ transition:none; }
+    .card.wrong{ animation:none; }
+  }
+
+  @media (max-width:560px){
+    .board{ grid-template-columns:1fr; }
+    .col.right{ order:2; }
+    .col.left{ order:1; }
+    form.identity{ grid-template-columns:1fr; }
+  }
+
+  .round-complete{
+    text-align:center; padding:40px 10px; color:var(--ink-soft);
+  }
+
+  /* ---------- Result screen ---------- */
+  .result-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:20px;
+    box-shadow:var(--shadow); padding:26px 24px; margin-top:18px; text-align:center;
+  }
+  .result-card .score-big{
+    font-family:'Fraunces', serif;
+    font-size:clamp(3rem,14vw,4.4rem);
+    font-weight:700;
+    color:var(--gorev);
+    line-height:1;
+    margin-top:6px;
+  }
+  .result-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    margin-top:22px;
+  }
+  .result-tile{
+    background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 8px;
+  }
+  .result-tile .n{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.3rem; }
+  .result-tile .l{ font-size:.68rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-top:2px;}
+
+  /* ---------- Leaderboard ---------- */
+  .lb-wrap{
+    background:var(--paper); border:1px solid var(--line); border-radius:20px;
+    box-shadow:var(--shadow); padding:20px; margin-top:18px; overflow-x:auto;
+  }
+  table.lb{ width:100%; border-collapse:collapse; min-width:520px; }
+  table.lb th, table.lb td{
+    text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); font-size:.87rem;
+  }
+  table.lb th{ font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); }
+  table.lb td.num{ font-family:'IBM Plex Mono',monospace; }
+  table.lb tr.me{ background:var(--gorev-bg); }
+  table.lb tr.me td{ font-weight:700; }
+  .rank{ font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); }
+  .empty-lb{ color:var(--ink-soft); text-align:center; padding:24px 0; }
+
+  .top-nav{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem;}
+  .brand .dot{ width:10px;height:10px;border-radius:50%; background:var(--gorev); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top-nav">
+    <div class="brand"><span class="dot"></span> Hormon Eşleştirme</div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-ghost" id="btnSound" type="button" aria-pressed="true" title="Sesi aç/kapat">🔊</button>
+      <button class="btn btn-ghost" id="btnLbFromTop" type="button">🏆 Skor Tablosu</button>
+    </div>
+  </div>
+
+  <!-- START SCREEN -->
+  <section id="screen-start">
+    <div class="cover">
+      <div class="eyebrow">Temel Veteriner Fizyoloji · 6. Ünite</div>
+      <h1>Hormon Eşleştirme Oyunu</h1>
+      <p class="sub">Endokrin sistemi öğrenmenin hızlı yolu: her hormonun salgılandığı organı, görevini ve eksikliğinde/aşırı salınımında ortaya çıkan sorunları doğru eşleştir.</p>
+
+      <div class="badge-row">
+        <span class="badge organ"><span class="dot"></span>1. Tur · Organ</span>
+        <span class="badge gorev"><span class="dot"></span>2. Tur · Görev</span>
+        <span class="badge sorun"><span class="dot"></span>3. Tur · Eksiklik / Fazlalık</span>
+      </div>
+
+      <div class="howto">
+        <h2>Nasıl oynanır?</h2>
+        <ol>
+          <li>Oyun <b>3 tur</b>dan oluşur. Her turda soldaki listede <b>hormon adları</b>, sağdaki listede ise o tura ait <b>karışık bilgi kartları</b> yer alır.</li>
+          <li>Önce bir hormona, ardından onunla eşleştiğini düşündüğün bilgi kartına dokun. Doğruysa kart soluklaşıp eşleşmiş sayılır, yanlışsa kartlar kısa süreliğine kırmızı yanıp söner ve tekrar deneyebilirsin.</li>
+          <li>1. tur hormonun <b>üretildiği organı</b>, 2. tur <b>görevini</b>, 3. tur ise <b>eksikliğinde veya aşırı salgılanmasında oluşan sorunları</b> eşleştirmeni ister.</li>
+          <li>Toplam süren <b>3 dakika</b>. Süre dolduğunda bulunduğun turdan bağımsız olarak oyun biter ve puanın kaydedilir.</li>
+          <li>Oyun sırasında ipucu verilmez — bildiğin kadarıyla ilerle. Başarılar!</li>
+        </ol>
+
+        <div class="rules-grid">
+          <div class="rule-tile"><div class="k">+10</div><div class="v">doğru eşleşme puanı</div></div>
+          <div class="rule-tile"><div class="k">−2</div><div class="v">yanlış deneme puanı</div></div>
+          <div class="rule-tile"><div class="k">21</div><div class="v">eşleştirilecek hormon</div></div>
+          <div class="rule-tile"><div class="k">3:00</div><div class="v">toplam oyun süresi</div></div>
+        </div>
+      </div>
+
+      <form class="identity" id="identityForm">
+        <div class="field">
+          <label for="stName">Öğrenci Adı Soyadı</label>
+          <input id="stName" type="text" autocomplete="name" placeholder="Örn. Ayşe Yılmaz" required />
+        </div>
+        <div class="field">
+          <label for="stNo">Öğrenci No</label>
+          <input id="stNo" type="text" inputmode="numeric" autocomplete="off" placeholder="Örn. 224101034" required />
+        </div>
+      </form>
+
+      <div class="cta-row">
+        <button class="btn btn-primary" id="btnStart" type="button" disabled>Oyuna Başla</button>
+        <button class="btn btn-ghost" id="btnLbFromStart" type="button">Skor Tablosunu Gör</button>
+      </div>
+      <div class="hint-msg" id="startMsg"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section id="screen-game" hidden>
+    <div class="topbar">
+      <div class="timer-pill" id="timerPill">
+        <span class="tlabel">Süre</span>
+        <span class="tval mono" id="timeVal">3:00</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="n mono" id="scoreVal">0</div><div class="l">Puan</div></div>
+        <div class="stat"><div class="n mono" id="matchVal">0/21</div><div class="l">Eşleşme</div></div>
+      </div>
+    </div>
+
+    <div class="round-banner">
+      <span class="step" id="roundStep">TUR 1 / 3</span>
+      <span class="tag organ" id="roundTag">ORGAN</span>
+    </div>
+    <h2 id="roundTitle">Hormon hangi organdan salgılanır?</h2>
+    <p class="round-desc" id="roundDesc">Soldaki hormonu, üretildiği organla eşleştir.</p>
+
+    <div class="board" id="board">
+      <div class="col left">
+        <div class="col-title">Hormon</div>
+        <div id="leftCol" style="display:grid; gap:10px;"></div>
+      </div>
+      <div class="col right">
+        <div class="col-title" id="rightColTitle">Organ</div>
+        <div id="rightCol" style="display:grid; gap:10px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT SCREEN -->
+  <section id="screen-result" hidden>
+    <div class="result-card">
+      <div class="eyebrow">Oyun Bitti</div>
+      <h2 id="resultName">—</h2>
+      <div class="score-big" id="resultScore">0</div>
+      <div style="color:var(--ink-soft); font-size:.85rem;">toplam puan</div>
+
+      <div class="result-grid">
+        <div class="result-tile"><div class="n mono" id="resultCorrect">0/21</div><div class="l">Doğru Eşleşme</div></div>
+        <div class="result-tile"><div class="n mono" id="resultRound">—</div><div class="l">Ulaşılan Tur</div></div>
+        <div class="result-tile"><div class="n mono" id="resultTime">0:00</div><div class="l">Kullanılan Süre</div></div>
+      </div>
+
+      <div class="cta-row" style="justify-content:center; margin-top:24px;">
+        <button class="btn btn-primary" id="btnSave" type="button">Skoru Kaydet ve Tabloyu Gör</button>
+        <button class="btn btn-ghost" id="btnReplay" type="button">Tekrar Oyna</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD SCREEN -->
+  <section id="screen-leaderboard" hidden>
+    <div class="lb-wrap">
+      <div class="top-nav" style="margin-top:0;">
+        <h2>Skor Tablosu</h2>
+        <button class="btn btn-ghost" id="btnLbHome" type="button">Ana Sayfa</button>
+      </div>
+      <div id="lbBody"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var HORMONES = [
+    { id:"acth", ad:"ACTH (Adrenokortikotropik Hormon)", organ:"Hipofiz Bezi (Ön Lob)",
+      gorev:"Böbreküstü bezi korteksinden kortizol ve diğer hormonların salgılanmasını uyarır.",
+      sorun:"Eksikliğinde kortizol salgısı azalır, strese yanıt zayıflar; fazlalığında kortizol aşırı salgılanır ve Cushing sendromu gelişir." },
+    { id:"gh", ad:"Büyüme Hormonu (GH, Somatotropin)", organ:"Hipofiz Bezi (Ön Lob)",
+      gorev:"Bütün beden hücrelerinde büyüme ve gelişmeyi düzenler, protein sentezini ve kan glikozunu artırır.",
+      sorun:"Büyüme çağında eksikliğinde cücelik (dwarfizm), fazlalığında devlik (gigantizm); büyüme çağı bittikten sonra fazlalığında akromegali görülür." },
+    { id:"tsh", ad:"TSH (Tiroid Stimüle Edici Hormon)", organ:"Hipofiz Bezi (Ön Lob)",
+      gorev:"Tiroid bezini uyararak tiroksin (T4) ve triiyodotironin (T3) yapım ve salınımını artırır.",
+      sorun:"Eksikliğinde tiroid hormonları azalır, hipotiroidi bulguları görülür; fazlalığında tiroidi aşırı uyararak hipertiroidi ve guatra yol açar." },
+    { id:"fsh", ad:"FSH (Folikül Uyarıcı Hormon)", organ:"Hipofiz Bezi (Ön Lob)",
+      gorev:"Dişilerde ovaryumda folikül gelişimini, erkeklerde testiste spermatogenezi düzenler.",
+      sorun:"Eksikliğinde folikül gelişimi ve spermatogenez duraklar, kısırlık görülebilir." },
+    { id:"lh", ad:"LH (Lüteinleştirici Hormon)", organ:"Hipofiz Bezi (Ön Lob)",
+      gorev:"Dişilerde olgun foliküllün atılmasını (ovulasyon) sağlar, erkeklerde testiste testosteron salınımını uyarır.",
+      sorun:"Eksikliğinde ovulasyon gerçekleşmez, testosteron üretimi azalır ve üreme yeteneği bozulur." },
+    { id:"prl", ad:"Prolaktin (PRL)", organ:"Hipofiz Bezi (Ön Lob)",
+      gorev:"Gebelik ve doğum sonrasında meme bezlerinin gelişimini ve süt yapımını uyarır.",
+      sorun:"Eksikliğinde süt yapımı başlamaz veya sürdürülemez, laktasyon yetersizliği görülür." },
+    { id:"adh", ad:"ADH (Antidiüretik Hormon, Vazopressin)", organ:"Hipofiz Bezi (Arka Lob)",
+      gorev:"Böbreklerden suyun geri emilimini artırarak vücutta su tutulmasını ve kan basıncının korunmasını sağlar.",
+      sorun:"Yeterince salgılanmazsa 'Diabetes insipidus' (yalancı şeker hastalığı) gelişir, aşırı miktarda idrar çıkarılır." },
+    { id:"oks", ad:"Oksitosin", organ:"Hipofiz Bezi (Arka Lob)",
+      gorev:"Meme alveollerini çevreleyen kasları kasarak sütün inmesini sağlar, doğumda uterus kasılmalarını uyarır.",
+      sorun:"Eksikliğinde sütün inmesi zayıflar ve doğum sırasında uterus kasılmaları yetersiz kalır." },
+    { id:"msh", ad:"MSH (Melanosit Uyarıcı Hormon)", organ:"Hipofiz Bezi (Ara Lob)",
+      gorev:"Melanositlerdeki melanin sentezini uyararak derinin koyu renk almasını sağlar.",
+      sorun:"Eksikliğinde deride solukluk, fazlalığında derinin aşırı koyulaşması görülebilir." },
+    { id:"tiroid", ad:"Tiroksin ve Triiyodotironin (T3-T4)", organ:"Tiroid Bezi",
+      gorev:"Hücrelerde oksijen kullanımını ve metabolizma hızını artırır; büyüme, gelişme ve ısı üretiminde rol oynar.",
+      sorun:"Eksikliğinde (hipotiroidi) guatr, soğuğa dayanıksızlık, kilo artışı ve uyuşukluk; fazlalığında (hipertiroidi) iştah artmasına rağmen kilo kaybı, kalp atımında artış ve sıcağa duyarlılık görülür." },
+    { id:"kalsitonin", ad:"Kalsitonin", organ:"Tiroid Bezi",
+      gorev:"Kan kalsiyum düzeyi yükseldiğinde kemik yıkımını baskılayarak kandaki kalsiyumu düşürür.",
+      sorun:"Eksikliğinde kandaki kalsiyum düzeyinin düşürülmesi zorlaşır, kemikte kalsiyum birikimi azalır." },
+    { id:"pth", ad:"Parathormon (PTH)", organ:"Paratiroid Bezi",
+      gorev:"Kan kalsiyum düzeyi düştüğünde kemik yıkımını ve böbreklerden kalsiyum geri emilimini artırarak kanı yükseltir.",
+      sorun:"Eksikliğinde hipokalsemi ve kaslarda tetani gelişir; fazlalığında hiperkalsemi oluşur ve kalpte aritmi görülür." },
+    { id:"dhormon", ad:"D Hormonu (Kalsitriol)", organ:"Böbrek",
+      gorev:"Barsaklardan kalsiyum emilimini artırarak kemik gelişimini ve korunmasını sağlar.",
+      sorun:"Eksikliğinde büyüme döneminde raşitizm, yetişkinlerde osteomalazi (kemik dokuda kayıp) gelişir." },
+    { id:"aldosteron", ad:"Aldosteron", organ:"Böbreküstü Bezi (Korteks)",
+      gorev:"Böbreklerden sodyum geri emilimini sağlayarak vücudun sıvı dengesini korur.",
+      sorun:"Fazla salgılandığında 'primer aldosteronizm' gelişir; böbreküstü bezi yetersizliğinde (Addison hastalığı) diğer korteks hormonlarıyla birlikte azalır." },
+    { id:"kortizol", ad:"Kortizol", organ:"Böbreküstü Bezi (Korteks)",
+      gorev:"Karbonhidrat metabolizmasını düzenler ve kan glikoz düzeyini artırır.",
+      sorun:"Fazla salgılandığında Cushing sendromu, yetersiz salgılandığında Addison hastalığı gelişir." },
+    { id:"adrenalin", ad:"Adrenalin ve Noradrenalin", organ:"Böbreküstü Bezi (Medulla)",
+      gorev:"Kısa süreli stres durumlarında ('savaş ya da kaç' tepkisi) kalp atım sayısını, kasılma gücünü, kan basıncını ve kan glikozunu artırır.",
+      sorun:"Eksikliğinde akut strese fizyolojik yanıt zayıflar; fazlalığında kalp atımı, kan basıncı ve kan glikozu aşırı yükselebilir." },
+    { id:"insulin", ad:"İnsülin", organ:"Pankreas",
+      gorev:"Kandaki glikozun hücrelere girişini sağlayarak kan glikoz düzeyini düşürür, glikojen ve protein yapımını artırır.",
+      sorun:"Yeterince salgılanmazsa 'Diabetes mellitus' gelişir; kan glikozu yükselir, poliüri, polidipsi ve polifaji görülür." },
+    { id:"glukagon", ad:"Glukagon", organ:"Pankreas",
+      gorev:"Karaciğerde depolanan glikojenin glikoza parçalanmasını uyararak kan glikoz düzeyini yükseltir.",
+      sorun:"Fazla salgılandığında hiperglisemi (kan glikozunun aşırı yükselmesi) gelişir." },
+    { id:"ostrojen", ad:"Östrojen", organ:"Ovaryum",
+      gorev:"Dişi üreme kanalının gelişimini, ikincil cinsiyet karakterlerini ve meme bezi kanallarının gelişimini sağlar.",
+      sorun:"Eksikliğinde kızgınlık (östrus) belirtileri zayıflar, üreme kanalı gelişimi geriler ve kısırlık görülebilir." },
+    { id:"progesteron", ad:"Progesteron", organ:"Ovaryum (Korpus Luteum)",
+      gorev:"Gebeliğin sürdürülmesini sağlar, uterusu gevşetir ve meme bezlerinde alveol gelişimini destekler.",
+      sorun:"Eksikliğinde gebeliğin sürdürülmesi zorlaşır, yavru atma (abort) riski artar." },
+    { id:"testosteron", ad:"Testosteron", organ:"Testis",
+      gorev:"Spermatogenezi uyarır, erkeğe özgü ikincil cinsiyet karakterlerinin oluşmasını sağlar.",
+      sorun:"Eksikliğinde spermatogenez ve erkeklik özelliklerinin gelişimi zayıflar, kısırlık görülebilir." }
+  ];
+
+  var ROUND_DEFS = [
+    { key:"organ", tag:"ORGAN", cls:"organ", title:"Hormon hangi organdan salgılanır?", desc:"Soldaki hormonu, üretildiği organla eşleştir.", colTitle:"Organ" },
+    { key:"gorev", tag:"GÖREV", cls:"gorev", title:"Hormonun görevi nedir?", desc:"Soldaki hormonu, bedendeki asıl göreviyle eşleştir.", colTitle:"Görev" },
+    { key:"sorun", tag:"EKSİKLİK / FAZLALIK", cls:"sorun", title:"Eksikliğinde veya fazlalığında ne olur?", desc:"Soldaki hormonu, eksikliğinde veya aşırı salgılanmasında ortaya çıkan sorunla eşleştir.", colTitle:"Sorun" }
+  ];
+
+  var TOTAL_TIME = 180;
+  var GROUP_SIZE = 7;
+
+  var state = null;
+  var timerId = null;
+
+  function $(id){ return document.getElementById(id); }
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  function fmtTime(sec){
+    sec = Math.max(0, sec);
+    var m = Math.floor(sec/60), s = sec%60;
+    return m + ":" + (s<10?"0":"") + s;
+  }
+
+  /* ---------------- Sound effects ---------------- */
+  var SFX_KEY = "hormonEslestirmeSesAcikV1";
+  var soundOn = true;
+  try{
+    var storedSound = localStorage.getItem(SFX_KEY);
+    if (storedSound !== null) soundOn = storedSound === "1";
+  }catch(e){}
+
+  var SFX_FILES = {
+    dogru: "sesler/dogru.mp3",
+    yanlis: "sesler/yanlis.mp3",
+    tik: "sesler/tik.mp3",
+    sureBitti: "sesler/sure-bitti.mp3",
+    siralama: "sesler/siralama.mp3"
+  };
+  var sfxCache = {};
+  function playSfx(name){
+    if (!soundOn) return;
+    try{
+      var src = SFX_FILES[name];
+      if (!src) return;
+      var audio = new Audio(src);
+      audio.volume = (name === "tik") ? 0.5 : 0.85;
+      audio.play()["catch"](function(){});
+    }catch(e){}
+  }
+
+  var btnSound = $("btnSound");
+  function updateSoundBtn(){
+    btnSound.textContent = soundOn ? "🔊" : "🔇";
+    btnSound.setAttribute("aria-pressed", soundOn ? "true" : "false");
+  }
+  updateSoundBtn();
+  btnSound.addEventListener("click", function(){
+    soundOn = !soundOn;
+    try{ localStorage.setItem(SFX_KEY, soundOn ? "1" : "0"); }catch(e){}
+    updateSoundBtn();
+  });
+
+  function showScreen(id){
+    ["screen-start","screen-game","screen-result","screen-leaderboard"].forEach(function(s){
+      $(s).hidden = (s !== id);
+    });
+    window.scrollTo(0,0);
+  }
+
+  /* ---------------- Supabase (ortak / paylaşılan skor tablosu) ---------------- */
+  // Bu iki değeri kendi Supabase projenizden alıp buraya yapıştırın:
+  // Project Settings > Data API > Project URL / anon public key.
+  // Doldurulmadığı sürece oyun oynanabilir ama skor tablosu çalışmaz.
+  var SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+  var SUPABASE_ANON_KEY = "YOUR-ANON-KEY";
+
+  var sb = null;
+  try{
+    if (window.supabase && SUPABASE_URL.indexOf("YOUR-PROJECT") === -1){
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  }catch(e){ sb = null; }
+
+  function submitScore(entry, done){
+    if (!sb){ done(new Error("not-configured")); return; }
+    sb.from("he_scores")
+      .insert({ ad: entry.ad, no: entry.no, skor: entry.skor, dogru: entry.dogru, sure: entry.sure })
+      .select()
+      .then(function(res){ done(res.error || null, res.data); })
+      ["catch"](function(err){ done(err); });
+  }
+
+  function fetchLeaderboard(done){
+    if (!sb){ done(new Error("not-configured")); return; }
+    sb.from("he_scores")
+      .select("id,ad,no,skor,dogru,sure,created_at")
+      .order("skor", { ascending:false })
+      .order("dogru", { ascending:false })
+      .order("sure", { ascending:true })
+      .limit(50)
+      .then(function(res){ done(res.error || null, res.data || []); })
+      ["catch"](function(err){ done(err); });
+  }
+
+  function renderLeaderboard(highlightId){
+    var body = $("lbBody");
+
+    if (!sb){
+      body.innerHTML = '<div class="empty-lb">Skor tablosu henüz bağlanmadı: oyuna Supabase bilgileri girilmemiş.</div>';
+      return;
+    }
+
+    body.innerHTML = '<div class="empty-lb">Skor tablosu yükleniyor…</div>';
+    fetchLeaderboard(function(err, rows){
+      if (err){
+        body.innerHTML = '<div class="empty-lb">Skor tablosu yüklenemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.<br><br>' +
+          '<button class="btn btn-ghost" id="btnLbRetry" type="button">Tekrar Dene</button></div>';
+        var retryBtn = $("btnLbRetry");
+        if (retryBtn) retryBtn.addEventListener("click", function(){ renderLeaderboard(highlightId); });
+        return;
+      }
+      if (!rows.length){
+        body.innerHTML = '<div class="empty-lb">Henüz kayıtlı skor yok. İlk oynayan sen ol!</div>';
+        return;
+      }
+      var html = '<div style="overflow-x:auto;"><table class="lb"><thead><tr>' +
+        '<th>#</th><th>Öğrenci</th><th>No</th><th>Puan</th><th>Doğru</th><th>Süre</th><th>Tarih</th>' +
+        '</tr></thead><tbody>';
+      rows.forEach(function(row, idx){
+        var cls = (row.id === highlightId) ? ' class="me"' : '';
+        var tarih = row.created_at ? new Date(row.created_at).toLocaleDateString("tr-TR") : "";
+        html += '<tr' + cls + '>' +
+          '<td class="rank">'+(idx+1)+'</td>' +
+          '<td>'+escapeHtml(row.ad)+'</td>' +
+          '<td class="num">'+escapeHtml(row.no)+'</td>' +
+          '<td class="num">'+row.skor+'</td>' +
+          '<td class="num">'+row.dogru+'/21</td>' +
+          '<td class="num">'+fmtTime(row.sure)+'</td>' +
+          '<td>'+tarih+'</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table></div>';
+      body.innerHTML = html;
+    });
+  }
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  /* ---------------- Identity form ---------------- */
+  var nameInput = $("stName"), noInput = $("stNo"), btnStart = $("btnStart");
+  function validateIdentity(){
+    var ok = nameInput.value.trim().length>1 && noInput.value.trim().length>0;
+    btnStart.disabled = !ok;
+    return ok;
+  }
+  nameInput.addEventListener("input", validateIdentity);
+  noInput.addEventListener("input", validateIdentity);
+
+  btnStart.addEventListener("click", function(){
+    if (!validateIdentity()) return;
+    startGame(nameInput.value.trim(), noInput.value.trim());
+  });
+
+  $("btnLbFromStart").addEventListener("click", function(){ renderLeaderboard(null); showScreen("screen-leaderboard"); });
+  $("btnLbFromTop").addEventListener("click", function(){ renderLeaderboard(state?state.lastSavedId:null); showScreen("screen-leaderboard"); });
+  $("btnLbHome").addEventListener("click", function(){ showScreen("screen-start"); });
+
+  /* ---------------- Game setup ---------------- */
+  function startGame(ad, no){
+    var pool = shuffle(HORMONES);
+    var groups = [
+      pool.slice(0, GROUP_SIZE),
+      pool.slice(GROUP_SIZE, GROUP_SIZE*2),
+      pool.slice(GROUP_SIZE*2, GROUP_SIZE*3)
+    ];
+    state = {
+      ad: ad, no: no,
+      timeLeft: TOTAL_TIME,
+      score: 0,
+      correctCount: 0,
+      roundIndex: 0,
+      groups: groups,
+      roundMatched: 0,
+      selectedLeft: null,
+      selectedRight: null,
+      locked: false,
+      lastSavedId: null,
+      finished: false
+    };
+    $("scoreVal").textContent = "0";
+    $("matchVal").textContent = "0/21";
+    updateTimerDisplay();
+    showScreen("screen-game");
+    renderRound();
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(tick, 1000);
+  }
+
+  function tick(){
+    if (!state || state.finished) return;
+    state.timeLeft--;
+    updateTimerDisplay();
+    if (state.timeLeft <= 0){
+      endGame("time");
+    } else if (state.timeLeft <= 10){
+      playSfx("tik");
+    }
+  }
+
+  function updateTimerDisplay(){
+    $("timeVal").textContent = fmtTime(state ? state.timeLeft : TOTAL_TIME);
+    $("timerPill").classList.toggle("low", state && state.timeLeft <= 20);
+  }
+
+  function renderRound(){
+    var def = ROUND_DEFS[state.roundIndex];
+    var group = state.groups[state.roundIndex];
+    state.roundMatched = 0;
+
+    $("roundStep").textContent = "TUR " + (state.roundIndex+1) + " / 3";
+    var tagEl = $("roundTag");
+    tagEl.textContent = def.tag;
+    tagEl.className = "tag " + def.cls;
+    $("roundTitle").textContent = def.title;
+    $("roundDesc").textContent = def.desc;
+    $("rightColTitle").textContent = def.colTitle;
+
+    // Matching is by answer VALUE, not hormone id: several hormones legitimately
+    // share the same organ text (e.g. six are all "Hipofiz Bezi (Ön Lob)"), and any
+    // card carrying the correct value must count as correct, not just the one
+    // generated from the exact same hormone.
+    var leftItems = shuffle(group.map(function(h){ return { value:h[def.key], label:h.ad }; }));
+    var rightItems = shuffle(group.map(function(h){ return { value:h[def.key], label:h[def.key] }; }));
+
+    var leftCol = $("leftCol"), rightCol = $("rightCol");
+    leftCol.innerHTML = "";
+    rightCol.innerHTML = "";
+
+    leftItems.forEach(function(item){
+      var btn = document.createElement("button");
+      btn.className = "card name";
+      btn.type = "button";
+      btn.textContent = item.label;
+      btn.dataset.value = item.value;
+      btn.dataset.side = "left";
+      btn.addEventListener("click", onCardClick);
+      leftCol.appendChild(btn);
+    });
+    rightItems.forEach(function(item){
+      var btn = document.createElement("button");
+      btn.className = "card info";
+      btn.type = "button";
+      btn.textContent = item.label;
+      btn.dataset.value = item.value;
+      btn.dataset.side = "right";
+      btn.addEventListener("click", onCardClick);
+      rightCol.appendChild(btn);
+    });
+
+    state.selectedLeft = null;
+    state.selectedRight = null;
+    state.locked = false;
+  }
+
+  function onCardClick(e){
+    if (!state || state.locked) return;
+    var btn = e.currentTarget;
+    if (btn.classList.contains("matched")) return;
+    var side = btn.dataset.side;
+
+    if (side === "left"){
+      if (state.selectedLeft) state.selectedLeft.classList.remove("selected");
+      state.selectedLeft = btn;
+      btn.classList.add("selected");
+    } else {
+      if (state.selectedRight) state.selectedRight.classList.remove("selected");
+      state.selectedRight = btn;
+      btn.classList.add("selected");
+    }
+
+    if (state.selectedLeft && state.selectedRight){
+      checkMatch();
+    }
+  }
+
+  function checkMatch(){
+    state.locked = true;
+    var L = state.selectedLeft, R = state.selectedRight;
+    var isMatch = L.dataset.value === R.dataset.value;
+
+    if (isMatch){
+      playSfx("dogru");
+      state.score += 10;
+      state.correctCount++;
+      state.roundMatched++;
+      $("scoreVal").textContent = state.score;
+      $("matchVal").textContent = state.correctCount + "/21";
+      setTimeout(function(){
+        L.classList.remove("selected"); R.classList.remove("selected");
+        L.classList.add("matched"); R.classList.add("matched");
+        state.selectedLeft = null; state.selectedRight = null;
+        state.locked = false;
+        if (state.roundMatched >= state.groups[state.roundIndex].length){
+          nextRoundOrFinish();
+        }
+      }, 260);
+    } else {
+      playSfx("yanlis");
+      state.score = Math.max(0, state.score - 2);
+      $("scoreVal").textContent = state.score;
+      L.classList.add("wrong"); R.classList.add("wrong");
+      setTimeout(function(){
+        L.classList.remove("selected","wrong");
+        R.classList.remove("selected","wrong");
+        state.selectedLeft = null; state.selectedRight = null;
+        state.locked = false;
+      }, 480);
+    }
+  }
+
+  function nextRoundOrFinish(){
+    if (state.roundIndex < ROUND_DEFS.length - 1){
+      state.roundIndex++;
+      setTimeout(renderRound, 150);
+    } else {
+      endGame("complete");
+    }
+  }
+
+  function endGame(reason){
+    if (!state || state.finished) return;
+    state.finished = true;
+    if (timerId) clearInterval(timerId);
+    playSfx(reason === "time" ? "sureBitti" : "siralama");
+    var timeUsed = TOTAL_TIME - state.timeLeft;
+
+    $("resultName").textContent = state.ad;
+    $("resultScore").textContent = state.score;
+    $("resultCorrect").textContent = state.correctCount + "/21";
+    $("resultRound").textContent = Math.min(state.roundIndex+1,3) + " / 3";
+    $("resultTime").textContent = fmtTime(timeUsed);
+
+    var saveBtn = $("btnSave");
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Skoru Kaydet ve Tabloyu Gör";
+
+    showScreen("screen-result");
+  }
+
+  $("btnSave").addEventListener("click", function(){
+    if (!state) return;
+    var btn = this;
+
+    if (!sb){
+      btn.disabled = true;
+      btn.textContent = "Skor tablosu bağlı değil";
+      renderLeaderboard(null);
+      showScreen("screen-leaderboard");
+      return;
+    }
+
+    var timeUsed = TOTAL_TIME - state.timeLeft;
+    var entry = {
+      ad: state.ad,
+      no: state.no,
+      skor: state.score,
+      dogru: state.correctCount,
+      sure: timeUsed
+    };
+
+    btn.disabled = true;
+    btn.textContent = "Kaydediliyor…";
+
+    submitScore(entry, function(err, data){
+      if (err){
+        btn.disabled = false;
+        btn.textContent = "Tekrar Dene — Skoru Kaydet";
+        return;
+      }
+      var savedId = (data && data[0]) ? data[0].id : null;
+      state.lastSavedId = savedId;
+      btn.textContent = "Kaydedildi ✓";
+      renderLeaderboard(savedId);
+      showScreen("screen-leaderboard");
+    });
+  });
+
+  $("btnReplay").addEventListener("click", function(){
+    showScreen("screen-start");
+  });
+
+})();
+</script>
+</body>
+</html>
